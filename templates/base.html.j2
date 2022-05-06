@@ -16,21 +16,17 @@
                     <div class="container">
                         <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
                             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                                <li>
-                                    <a href="#" class="nav-link px-2 text-secondary">Home</a>
-                                </li>
-                                <li>
-                                    <a href="#" class="nav-link px-2 text-white">Features</a>
-                                </li>
-                                <li>
-                                    <a href="#" class="nav-link px-2 text-white">Pricing</a>
-                                </li>
-                                <li>
-                                    <a href="#" class="nav-link px-2 text-white">FAQs</a>
-                                </li>
-                                <li>
-                                    <a href="#" class="nav-link px-2 text-white">About</a>
-                                </li>
+                                {% for page in PAGE_NAMES %}
+                                    {% if page==current_page %}
+                                        <li>
+                                            <a class="nav-link px-2 text-secondary">{{ PAGE_NAMES[page] }}</a>
+                                        </li>
+                                    {% else %}
+                                        <li>
+                                            <a href="{{ page }}" class="nav-link px-2 text-white">{{ PAGE_NAMES[page] }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
                             </ul>
                             <div class="text-end">
                                 <span>Signed in as {{ user_info["name"] }}</span>
