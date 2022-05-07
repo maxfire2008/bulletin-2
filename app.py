@@ -147,6 +147,7 @@ def bulletin():
                 permissions=get_permissions(SAMPLE_USER_INFO["id"]),
                 user_info=SAMPLE_USER_INFO,
                 bulletin_date=date,
+                bulletin_items=fetch_items_for_day(date),
                 base64_encode=base64.b64encode,
                 viewing_early=(not (datetime.date.today()-date).days >= 0)
             )
