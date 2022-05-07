@@ -6,6 +6,13 @@
         </div>
     </div>
     <div class="list-group">
+        {% if bulletin_items|length == 0 %}
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">No items found</h5>
+                </div>
+            </div>
+        {% endif %}
         {% for item in bulletin_items %}
             <div class="list-group-item">
                 <div class="d-flex w-100 justify-content-between">
