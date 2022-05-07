@@ -6,12 +6,21 @@
         </div>
     </div>
     <div class="list-group">
-        {% if bulletin_items|length == 0 %}
-            <div class="list-group-item">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">No items found</h5>
-                </div>
+        {% if viewing_early %}
+            <div class="d-flex w-100 justify-content-between alert alert-warning">
+                Warning: You are viewing an early version of the bulletin. It should not be considered final!
             </div>
+            {% if bulletin_items|length == 0 %}
+                <div class="d-flex w-100 justify-content-between alert alert-primary">
+                    This bulletin has no items. This is probally because it is early.
+                </div>
+            {% endif %}
+        {% else %}
+            {% if bulletin_items|length == 0 %}
+                <div class="d-flex w-100 justify-content-between alert alert-primary">
+                    This bulletin has no items. This is probally because it is not on a school day.
+                </div>
+            {% endif %}
         {% endif %}
         {% for item in bulletin_items %}
             <div class="list-group-item">

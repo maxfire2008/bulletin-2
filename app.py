@@ -112,7 +112,7 @@ def get_age_from_time(time_from: datetime.datetime):
 
 
 def get_permissions(user_id):
-    return ["admin", "superuser"]
+    return ["view_early","admin", "superuser"]
 
 
 @app.route('/')
@@ -137,7 +137,15 @@ def bulletin():
         try:
             date = datetime.date.fromisoformat(date)
         except:
-            return "400: Invalid date", 400
+            return flask.render_template(
+                "error.html.j2",
+                error="400: Invalid date",
+                current_page="error",
+                PAGE_NAMES=PAGE_NAMES,
+                bulletin_config=bulletin_config,
+                permissions=get_permissions(SAMPLE_USER_INFO["id"]),
+                user_info=SAMPLE_USER_INFO,
+            ), 400
         if (datetime.date.today()-date).days >= 0 or "view_early" in get_permissions(SAMPLE_USER_INFO["id"]):
             return flask.render_template(
                 'bulletin.html.j2',
