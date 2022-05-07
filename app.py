@@ -12,10 +12,37 @@ app = flask.Flask(__name__)
 flask_minify.Minify(app=app)
 
 
-PAGE_NAMES = {
-    "/": "Home",
-    "/admin/": "Admin",
-    "/superuser/": "Superuser"
+PAGES = {
+    "home": {
+        "name": "Home",
+        "deeplink": "/",
+        "show_in_nav": True,
+        "permission": None,
+    },
+    "error": {
+        "name": "Error",
+        "deeplink": "#",
+        "show_in_nav": False,
+        "permission": None,
+    },
+    "bullletin": {
+        "name": "Bulletin",
+        "deeplink": "#",
+        "show_in_nav": False,
+        "permission": None,
+    },
+    "admin": {
+        "name": "Admin",
+        "deeplink": "/admin/",
+        "show_in_nav": True,
+        "permission": "admin",
+    },
+    "superuser": {
+        "name": "Superuser",
+        "deeplink": "/superuser/",
+        "show_in_nav": True,
+        "permission": "superuser",
+    },
 }
 
 SAMPLE_USER_INFO = {
@@ -119,8 +146,8 @@ def get_permissions(user_id):
 def index():
     return flask.render_template(
         'index.html.j2',
-        current_page="/",
-        PAGE_NAMES=PAGE_NAMES,
+        current_page="home",
+        PAGES=PAGES,
         bulletin_config=bulletin_config,
         permissions=get_permissions(SAMPLE_USER_INFO["id"]),
         user_info=SAMPLE_USER_INFO,
@@ -141,7 +168,7 @@ def bulletin():
                 "error.html.j2",
                 error="400: Invalid date",
                 current_page="error",
-                PAGE_NAMES=PAGE_NAMES,
+                PAGES=PAGES,
                 bulletin_config=bulletin_config,
                 permissions=get_permissions(SAMPLE_USER_INFO["id"]),
                 user_info=SAMPLE_USER_INFO,
@@ -149,8 +176,8 @@ def bulletin():
         if (datetime.date.today()-date).days >= 0 or "view_early" in get_permissions(SAMPLE_USER_INFO["id"]):
             return flask.render_template(
                 'bulletin.html.j2',
-                current_page="/bulletin/",
-                PAGE_NAMES=PAGE_NAMES,
+                current_page="bulletin",
+                PAGES=PAGES,
                 bulletin_config=bulletin_config,
                 permissions=get_permissions(SAMPLE_USER_INFO["id"]),
                 user_info=SAMPLE_USER_INFO,
@@ -164,7 +191,7 @@ def bulletin():
                 "error.html.j2",
                 error="403: You are not allowed to view the bulletin early",
                 current_page="error",
-                PAGE_NAMES=PAGE_NAMES,
+                PAGES=PAGES,
                 bulletin_config=bulletin_config,
                 permissions=get_permissions(SAMPLE_USER_INFO["id"]),
                 user_info=SAMPLE_USER_INFO,
@@ -174,7 +201,7 @@ def bulletin():
             "error.html.j2",
             error="400: This request does not have a date",
             current_page="error",
-            PAGE_NAMES=PAGE_NAMES,
+            PAGES=PAGES,
             bulletin_config=bulletin_config,
             permissions=get_permissions(SAMPLE_USER_INFO["id"]),
             user_info=SAMPLE_USER_INFO,
@@ -187,7 +214,7 @@ def not_found_error(error):
         "error.html.j2",
         error="404: Page not found",
         current_page="error",
-        PAGE_NAMES=PAGE_NAMES,
+        PAGES=PAGES,
         bulletin_config=bulletin_config,
         permissions=get_permissions(SAMPLE_USER_INFO["id"]),
         user_info=SAMPLE_USER_INFO,
@@ -200,7 +227,7 @@ def internal_error(error):
         "error.html.j2",
         error="500: Server error",
         current_page="error",
-        PAGE_NAMES=PAGE_NAMES,
+        PAGES=PAGES,
         bulletin_config=bulletin_config,
         permissions=get_permissions(SAMPLE_USER_INFO["id"]),
         user_info=SAMPLE_USER_INFO,
@@ -213,7 +240,7 @@ def coffee():
         "error.html.j2",
         error="I don't really like coffee even though I'm a programmer.",
         current_page="error",
-        PAGE_NAMES=PAGE_NAMES,
+        PAGES=PAGES,
         bulletin_config=bulletin_config,
         permissions=get_permissions(SAMPLE_USER_INFO["id"]),
         user_info=SAMPLE_USER_INFO,

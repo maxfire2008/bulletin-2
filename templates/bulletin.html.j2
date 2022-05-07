@@ -1,4 +1,7 @@
 {% extends 'base.html.j2' %}
+{% block title %}
+    {{ bulletin_date.strftime("%d/%m/%Y") }} - 
+{% endblock %}
 {% block content %}
     <div class="p-5 mb-4 bg-light rounded-3">
         <div class="container-fluid py-5">
