@@ -51,11 +51,23 @@
                     </form>
                 </h2>
                 <ul class="list-group">
-                    <a class="btn btn-primary list-group-item d-flex justify-content-between align-items-center">
-                        Lorem ipsum club
+                    {% for item in users_items %}
+                        {# <a class="btn btn-primary list-group-item d-flex justify-content-between align-items-center">
+                        {{ item.title }}
                         <span class="badge bg-primary rounded-pill">You own this</span>
-                    </a>
-                </ul>
-            </div>
+                    </a> #}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ item["title"] }}</h5>
+                            <small>{{ item["notes"] }}</small>
+                        </div>
+                        <p class="mb-1" id="{{ item["id"] }}Content">
+                            {{ item["content"] }}
+                        </p>
+                        <small>{{ item["grades_string"] }}</small>
+                    </div>
+                {% endfor %}
+            </ul>
         </div>
-    {% endblock %}
+    </div>
+{% endblock %}

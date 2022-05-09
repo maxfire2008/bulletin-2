@@ -45,13 +45,33 @@ PAGES = {
     },
 }
 
-SAMPLE_USER_INFO = {
-    "first_name": "John",
-    "last_name": "Citizen",
-    "email": "john.citizen@example.com",
-    "name": "John Citizen",
-    "id": 1,
+USERS_LIST = {
+    "1": {
+        "first_name": "John",
+        "last_name": "Citizen",
+        "email": "john.citizen@example.com",
+        "name": "John Citizen",
+        "permissions": ["view_early", "minor_approve", "major_approve", "admin", "superuser"],
+    },
+    "2": {
+        "first_name": "Jane",
+        "last_name": "Citizen",
+        "email": "jane.citizen@example.com",
+        "name": "Jane Citizen",
+        "permissions": ["minor_approve"],
+    },
+    "3": {
+        "first_name": "Tim",
+        "last_name": "Student",
+        "email": "tim.student@example.com",
+        "name": "Tim Student",
+        "permissions": [],
+    },
 }
+
+
+def get_permissions(user_id):
+    return USERS_LIST[user_id]["permissions"]
 
 # MARKDOWN_IT_RENDERER = (
 #     markdown_it.MarkdownIt()
@@ -68,20 +88,44 @@ def database_connection():
         password=bulletin_config.DATABASE_PASSWORD)
 
 
-def fetch_bulletins(count: int = 50, offset: int = 0, earlier_than: datetime.date = None):
+def get_items_for_user(user_id: list[str], limit: int = 500, offset: int = 0):
+    conn = database_connection()
+    cur = conn.cursor()
+    cur.execute(
+        'SELECT "id", last_edit, title, notes, "owner" ' +
+        'FROM "bulletin-2".items ' +
+        'WHERE "owner" = ANY(%s) ORDER BY "last_edit" DESC LIMIT %s OFFSET %s',
+        (user_id, limit, offset)
+    )
+    results = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [{
+        "id": item[0],
+        "last_edit": item[1],
+        "title": item[2],
+        "notes": item[3],
+        "owner": item[4],
+    } for item in results]
+# SELECT "id", last_edit, title, notes, "owner"
+# FROM "bulletin-2".items
+# WHERE "owner" = ANY('{1,2}') ORDER BY "last_edit" DESC LIMIT 100 OFFSET 0;
+
+
+def fetch_bulletins(limit: int = 500, offset: int = 0, earlier_than: datetime.date = None):
     conn = database_connection()
     cur = conn.cursor()
     if earlier_than:
         cur.execute(
             'SELECT distinct("date") FROM "bulletin-2".occurrences ' +
             'WHERE date <= %s::timestamp ORDER BY "date" DESC LIMIT %s OFFSET %s',
-            (earlier_than.strftime("%Y-%m-%d"), count, offset)
+            (earlier_than.strftime("%Y-%m-%d"), limit, offset)
         )
     else:
         cur.execute(
             'SELECT distinct("date") FROM "bulletin-2".occurrences ' +
             'ORDER BY "date" DESC LIMIT %s OFFSET %s',
-            (count, offset)
+            (limit, offset)
         )
     results = cur.fetchall()
     cur.close()
@@ -138,26 +182,25 @@ def get_age_from_time(time_from: datetime.datetime):
         return f"{days // 365} years ago"
 
 
-def get_permissions(user_id):
-    return ["view_early","admin", "superuser"]
-
-
 @app.route('/')
 def index():
+    user_id = flask.request.cookies.get('user_id')
     return flask.render_template(
         'index.html.j2',
         current_page="home",
         PAGES=PAGES,
         bulletin_config=bulletin_config,
-        permissions=get_permissions(SAMPLE_USER_INFO["id"]),
-        user_info=SAMPLE_USER_INFO,
+        permissions=get_permissions(user_id),
+        user_info=USERS_LIST[user_id],
         bulletins=fetch_bulletins(earlier_than=datetime.date.today()),
-        get_age_from_time=get_age_from_time
+        get_age_from_time=get_age_from_time,
+        users_items=get_items_for_user([user_id]),
     )
 
 
 @app.route("/bulletin/")
 def bulletin():
+    user_id = flask.request.cookies.get('user_id')
     # get the date from ?date
     date = flask.request.args.get("date")
     if date:
@@ -170,17 +213,17 @@ def bulletin():
                 current_page="error",
                 PAGES=PAGES,
                 bulletin_config=bulletin_config,
-                permissions=get_permissions(SAMPLE_USER_INFO["id"]),
-                user_info=SAMPLE_USER_INFO,
+                permissions=get_permissions(user_id),
+                user_info=USERS_LIST[user_id],
             ), 400
-        if (datetime.date.today()-date).days >= 0 or "view_early" in get_permissions(SAMPLE_USER_INFO["id"]):
+        if (datetime.date.today()-date).days >= 0 or "view_early" in get_permissions(user_id):
             return flask.render_template(
                 'bulletin.html.j2',
                 current_page="bulletin",
                 PAGES=PAGES,
                 bulletin_config=bulletin_config,
-                permissions=get_permissions(SAMPLE_USER_INFO["id"]),
-                user_info=SAMPLE_USER_INFO,
+                permissions=get_permissions(user_id),
+                user_info=USERS_LIST[user_id],
                 bulletin_date=date,
                 bulletin_items=fetch_items_for_day(date),
                 base64_encode=base64.b64encode,
@@ -193,8 +236,8 @@ def bulletin():
                 current_page="error",
                 PAGES=PAGES,
                 bulletin_config=bulletin_config,
-                permissions=get_permissions(SAMPLE_USER_INFO["id"]),
-                user_info=SAMPLE_USER_INFO,
+                permissions=get_permissions(user_id),
+                user_info=USERS_LIST[user_id],
             ), 403
     else:
         return flask.render_template(
@@ -203,45 +246,61 @@ def bulletin():
             current_page="error",
             PAGES=PAGES,
             bulletin_config=bulletin_config,
-            permissions=get_permissions(SAMPLE_USER_INFO["id"]),
-            user_info=SAMPLE_USER_INFO,
+            permissions=get_permissions(user_id),
+            user_info=USERS_LIST[user_id],
         ), 400
+
+
+@app.route("/login/<id>")
+def login(id):
+    user_id = flask.request.cookies.get('user_id')
+    resp = flask.make_response(
+        '<br>'.join(
+            [f"<a href=\"/login/{user_id}\">{user_id}</a>" for user_id in USERS_LIST.keys()]
+        )
+    )
+    if id != 0:
+        resp.set_cookie('user_id', id)
+    return resp
 
 
 @app.errorhandler(404)
 def not_found_error(error):
+    user_id = flask.request.cookies.get('user_id')
     return flask.render_template(
         "error.html.j2",
         error="404: Page not found",
         current_page="error",
         PAGES=PAGES,
         bulletin_config=bulletin_config,
-        permissions=get_permissions(SAMPLE_USER_INFO["id"]),
-        user_info=SAMPLE_USER_INFO,
+        permissions=get_permissions(user_id),
+        user_info=USERS_LIST[user_id],
     ), 404
 
 
 @app.errorhandler(500)
 def internal_error(error):
+    user_id = flask.request.cookies.get('user_id')
     return flask.render_template(
         "error.html.j2",
         error="500: Server error",
         current_page="error",
         PAGES=PAGES,
         bulletin_config=bulletin_config,
-        permissions=get_permissions(SAMPLE_USER_INFO["id"]),
-        user_info=SAMPLE_USER_INFO,
+        permissions=get_permissions(user_id),
+        user_info=USERS_LIST[user_id],
     ), 400
 
 
 @app.route("/coffee/")
 def coffee():
+    user_id = flask.request.cookies.get('user_id')
     return flask.render_template(
         "error.html.j2",
         error="I don't really like coffee even though I'm a programmer.",
         current_page="error",
         PAGES=PAGES,
         bulletin_config=bulletin_config,
-        permissions=get_permissions(SAMPLE_USER_INFO["id"]),
-        user_info=SAMPLE_USER_INFO,
+        permissions=get_permissions(user_id),
+        user_info=USERS_LIST[user_id],
     ), 418
