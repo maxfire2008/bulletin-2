@@ -26,7 +26,7 @@
             {% endif %}
         {% endif %}
         {% for item in bulletin_items %}
-            <div class="list-group-item">
+            <div class="list-group-item bulletin-item">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">{{ item["title"] }}</h5>
                     {# <small>3 days ago</small> #}
@@ -41,16 +41,17 @@
 {% endblock %}
 {% block scripts %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js" integrity="sha512-SYfDUYPg5xspsG6OOpXU366G8SZsdHOhqk/icdrYJ2E/WKZxPxze7d2HD3AyXpT7U22PZ5y74xRpqZ6A2bJ+kQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it-attrs@4.1.3/markdown-it-attrs.browser.js" integrity="sha256-EnnRzUdnzlkGhULAfSrgIg7q1wm66nRo4i/eyXB8bxk=" crossorigin="anonymous"></script>
+    <!--<script src="https://cdn.jsdelivr.net/npm/markdown-it-attrs@4.1.3/markdown-it-attrs.browser.js" integrity="sha256-EnnRzUdnzlkGhULAfSrgIg7q1wm66nRo4i/eyXB8bxk=" crossorigin="anonymous"></script>-->
     <script>
-        var markdownIt = window.markdownit().use(window.markdownItAttrs, {
+        var markdownIt = window.markdownit()/*.use(window.markdownItAttrs, {
             leftDelimiter: '{',
             rightDelimiter: '}',
             allowedAttributes: ['class']  // empty array = all attributes are allowed
-        });
+        })*/;
         function base64DecodeUnicode(str) {percentEncodedStr = atob(str).split('').map(function(c) {return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);}).join('');return decodeURIComponent(percentEncodedStr);}
         {% for item in bulletin_items %}
             document.getElementById("{{ item["id"] }}Content").innerHTML = markdownIt.render(base64DecodeUnicode("{{ base64_encode(item["content"].encode()).decode() }}"));
         {% endfor %}
+        $(".bulletin-item").find("img").addClass("img-fluid");
     </script>
 {% endblock %}
