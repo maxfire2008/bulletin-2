@@ -9,7 +9,8 @@ import flask_minify
 
 app = flask.Flask(__name__)
 
-flask_minify.Minify(app=app)
+if not app.debug:
+    flask_minify.Minify(app=app)
 
 
 PAGES = {
