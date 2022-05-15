@@ -7,7 +7,11 @@ import datetime
 import base64
 import flask_minify
 
+#import requests
+#STACK_EDIT = "data:text/base64,"+base64.urlsafe_b64encode(requests.get("https://unpkg.com/stackedit-js@1.0.7/docs/lib/stackedit.min.js").content).decode()
+
 app = flask.Flask(__name__)
+app.jinja_options["autoescape"] = lambda _: True
 
 if not app.debug:
     flask_minify.Minify(app=app)
@@ -111,6 +115,29 @@ def get_items_for_user(user_id: list[str], limit: int = 500, offset: int = 0):
 # SELECT "id", last_edit, title, notes, "owner"
 # FROM "bulletin-2".items
 # WHERE "owner" = ANY('{1,2}') ORDER BY "last_edit" DESC LIMIT 100 OFFSET 0;
+
+
+def fetch_item(item_id):
+    conn = database_connection()
+    cur = conn.cursor()
+    cur.execute(
+        'SELECT "id", notes, last_edit, title, content, grades, "owner" ' +
+        'FROM "bulletin-2".items ' +
+        'WHERE "id" = %s',
+        (item_id,)
+    )
+    result = cur.fetchone()
+    cur.close()
+    conn.close()
+    return {
+        "id": result[0],
+        "notes": result[1],
+        "last_edit": result[2],
+        "title": result[3],
+        "content": result[4],
+        "grades": result[5],
+        "owner": result[6],
+    }
 
 
 def fetch_bulletins(limit: int = 500, offset: int = 0, earlier_than: datetime.date = None):
@@ -250,6 +277,33 @@ def bulletin():
             permissions=get_permissions(user_id),
             user_info=USERS_LIST[user_id],
         ), 400
+
+
+@app.route("/edit/<id>")
+def edit(id):
+    user_id = flask.request.cookies.get('user_id')
+    item = fetch_item(id)
+    if item["owner"] == user_id:
+        return flask.render_template(
+            'edit.html.j2',
+            current_page="edit",
+            PAGES=PAGES,
+            bulletin_config=bulletin_config,
+            permissions=get_permissions(user_id),
+            user_info=USERS_LIST[user_id],
+            item=item,
+            base64_encode=base64.b64encode,
+        )
+    else:
+        return flask.render_template(
+            "error.html.j2",
+            error="403: You are not allowed to edit this item",
+            current_page="error",
+            PAGES=PAGES,
+            bulletin_config=bulletin_config,
+            permissions=get_permissions(user_id),
+            user_info=USERS_LIST[user_id],
+        ), 403
 
 
 @app.route("/login/<id>")
