@@ -2,8 +2,15 @@
 {% block title %}Editing <span id="bulletinTitleInTitleTag">{{ item["title"] }}</span> -{% endblock %}
 {% block content %}
     <div class="container">
+        <!--
+title text
+content long text
+notes long text
+grades checkboxes 7,8,9,10
+        -->
+        <!--Title-->
         <div class="input-group mb-3">
-            <span class="input-group-text" id="titleLabel">Title</span>
+            <span class="input-group-text" id="titleLabel">Title <a title="This means anyone at THS can see this field in it's entirety">(PUBLIC)</a></span>
             <input type="text"
                    class="form-control"
                    placeholder="Title"
@@ -11,19 +18,55 @@
                    aria-describedby="titleLabel"
                    id="title">
         </div>
+        <!--Content-->
         <div class="input-group mb-3">
-            <span class="input-group-text" id="contentLabel">Content</span>
-            <textarea class="form-control"
+            <span class="input-group-text" id="contentLabel">Content <a title="This means anyone at THS can see this field in it's entirety">(PUBLIC)</a></span>
+            <textarea class="form-control auto-resize"
                       placeholder="Content"
                       aria-label="Content"
                       aria-describedby="contentLabel"
+                      style="resize: none"
                       id="content"></textarea>
         </div>
-    </div>
-{% endblock %}
-{% block scripts %}
-    <script src="https://cdn.jsdelivr.net/gh/azoff/AutoResize@4a3f3c8/jquery.autoresize.min.js" ></script>
-    <script>
+        <!--Notes-->
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="notesLabel">Notes <a title="Anyone who can edit this document - including admins - can see this">(EDITORS)</a></span>
+            <textarea class="form-control auto-resize"
+                      placeholder="Notes"
+                      aria-label="Notes"
+                      aria-describedby="notesLabel"
+                      style="resize: none"
+                      id="notes"></textarea>
+        </div>
+        <!--Grades-->
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="gradesLabel">Grades <a title="This means anyone at THS can see this field in it's entirety">(PUBLIC)</a></span>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="7" id="grade7">
+                <label class="form-check-label" for="grade7">7</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="8" id="grade8">
+                <label class="form-check-label" for="grade8">8</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="9" id="grade9">
+                <label class="form-check-label" for="grade9">9</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="10" id="grade10">
+                <label class="form-check-label" for="grade10">10</label>
+            </div>
+        </div>
+    {% endblock %}
+    {% block scripts %}
+        <script src="https://cdn.jsdelivr.net/gh/azoff/AutoResize@4a3f3c8/jquery.autoresize.min.js" integrity="sha384-3X08TGY2WowzEpDvZJo32TimV75qUCS55P8QNJqHXNpVOddjNgiZDIXqaBdVMOhr" crossorigin="anonymous"></script>
+        <script>
+        $(document).ready(function () {
+            $('.auto-resize').autoResize();
+        });
+        </script>
+        <script>
         /*content.oninput = function() {
             //content.rows=0;
             // create element for test render
@@ -60,5 +103,5 @@
             $(".delete-me").remove();
         };*/
 
-    </script>
-{% endblock %}
+        </script>
+    {% endblock %}
