@@ -3,40 +3,42 @@
     {{ bulletin_date.strftime("%d/%m/%Y") }} -
 {% endblock %}
 {% block content %}
-    <div class="p-5 mb-4 bg-light rounded-3">
-        <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold">Bulletin for {{ bulletin_date.strftime("%A the %dth of %B %Y") }}</h1>
+    <div class="container py-4">
+        <div class="p-5 mb-4 bg-light rounded-3">
+            <div class="container-fluid py-5">
+                <h1 class="display-5 fw-bold">Bulletin for {{ bulletin_date.strftime("%A the %dth of %B %Y") }}</h1>
+            </div>
         </div>
-    </div>
-    <div class="list-group">
-        {% if viewing_early %}
-            <div class="d-flex w-100 justify-content-between alert alert-warning">
-                Warning: You are viewing an early version of the bulletin. It should not be considered final!
-            </div>
-            {% if bulletin_items|length == 0 %}
-                <div class="d-flex w-100 justify-content-between alert alert-primary">
-                    This bulletin has no items. This is probally because it is early.
+        <div class="list-group">
+            {% if viewing_early %}
+                <div class="d-flex w-100 justify-content-between alert alert-warning">
+                    Warning: You are viewing an early version of the bulletin. It should not be considered final!
                 </div>
+                {% if bulletin_items|length == 0 %}
+                    <div class="d-flex w-100 justify-content-between alert alert-primary">
+                        This bulletin has no items. This is probally because it is early.
+                    </div>
+                {% endif %}
+            {% else %}
+                {% if bulletin_items|length == 0 %}
+                    <div class="d-flex w-100 justify-content-between alert alert-primary">
+                        This bulletin has no items. This is probally because it is not on a school day.
+                    </div>
+                {% endif %}
             {% endif %}
-        {% else %}
-            {% if bulletin_items|length == 0 %}
-                <div class="d-flex w-100 justify-content-between alert alert-primary">
-                    This bulletin has no items. This is probally because it is not on a school day.
+            {% for item in bulletin_items %}
+                <div class="list-group-item bulletin-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ item["title"] }}</h5>
+                        {# <small>3 days ago</small> #}
+                    </div>
+                    <p class="mb-1" id="{{ item['id'] }}Content">
+                        {{ item["content"] }}
+                    </p>
+                    <small>{{ item["grades_string"]|safe }}</small>
                 </div>
-            {% endif %}
-        {% endif %}
-        {% for item in bulletin_items %}
-            <div class="list-group-item bulletin-item">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">{{ item["title"] }}</h5>
-                    {# <small>3 days ago</small> #}
-                </div>
-                <p class="mb-1" id="{{ item['id'] }}Content">
-                    {{ item["content"] }}
-                </p>
-                <small>{{ item["grades_string"]|safe }}</small>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}
 {% block scripts %}
@@ -55,7 +57,7 @@
         $(".bulletin-item").find("img").addClass("img-fluid");
     </script>
     #}
-    <script src="https://unpkg.com/stackedit-js@1.0.7/docs/lib/stackedit.min.js"></script>
+    <script src="https://unpkg.com/stackedit-js@1.0.7/docs/lib/stackedit.min.js" integrity="sha384=sLRzZkCy+/B2DXBh8ehQduKr+paQ4Y3RNSIEHvOtbWFSuPTrHEQ2UPrEK4bN9+Ff"></script>
     <script>
         function base64DecodeUnicode(str) {percentEncodedStr = atob(str).split('').map(function(c) {return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);}).join('');return decodeURIComponent(percentEncodedStr);}
         {% for item in bulletin_items %}

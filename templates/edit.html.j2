@@ -1,0 +1,64 @@
+{% extends 'base.html.j2' %}
+{% block title %}Editing <span id="bulletinTitleInTitleTag">{{ item["title"] }}</span> -{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="titleLabel">Title</span>
+            <input type="text"
+                   class="form-control"
+                   placeholder="Title"
+                   aria-label="Title"
+                   aria-describedby="titleLabel"
+                   id="title">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="contentLabel">Content</span>
+            <textarea class="form-control"
+                      placeholder="Content"
+                      aria-label="Content"
+                      aria-describedby="contentLabel"
+                      id="content"></textarea>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/gh/azoff/AutoResize@4a3f3c8/jquery.autoresize.min.js" ></script>
+    <script>
+        /*content.oninput = function() {
+            //content.rows=0;
+            // create element for test render
+            var test = document.createElement('textarea');
+            test.classList.add("form-control");
+            test.classList.add("delete-me");
+            test.id = "testTextArea";
+
+            testdiv = document.createElement('div');
+            //with classes input-group mb-3
+            testdiv.classList.add("input-group");
+            testdiv.classList.add("mb-3");
+            testdiv.classList.add("delete-me");
+
+            //append <span class="input-group-text" id="contentLabel">Content</span> to testdiv
+            var testLabel = document.createElement('span');
+            testLabel.classList.add("input-group-text");
+            testLabel.textContent = "Content";
+            testLabel.classList.add("delete-me");
+            testdiv.appendChild(testLabel);
+            testdiv.appendChild(test);
+            $("#content").parent().parent()[0].appendChild(testdiv);
+            test.value = content.value;
+            test.rows = 0;
+            var padding = parseInt($('#testTextArea').css('paddingTop'),10) + parseInt($('#testTextArea').css('paddingBottom'),10);
+            //var contentLineHeight = 24; // This should match the line-height in the CSS
+            var contentHeight = test.scrollHeight - padding; // Get the scroll height of the textarea
+            //ta.style.height = taHeight; // This line is optional, I included it so you can more easily count the lines in an expanded textarea
+            console.log(contentHeight);
+            console.log($('#testTextArea').css('lineHeight'));
+            var numberOfLines = Math.floor(contentHeight/parseInt($('#testTextArea').css('lineHeight'),10));
+            console.log(numberOfLines);
+            content.rows = numberOfLines+1; // Set the number of rows to the number of lines
+            $(".delete-me").remove();
+        };*/
+
+    </script>
+{% endblock %}

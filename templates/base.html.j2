@@ -15,38 +15,38 @@
               crossorigin="anonymous">
     </head>
     <body>
-        <main>
-            <div class="container py-4">
-                <header class="p-3 bg-dark text-white">
-                    <div class="container">
-                        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-                            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                                {% for page in PAGES %}
-                                    {% if PAGES[page]["show_in_nav"] and (PAGES[page]["permission"] == None or PAGES[page]["permission"] in permissions) %}
-                                        {% if page==current_page %}
-                                            <li>
-                                                <a class="nav-link px-2 text-secondary">{{ PAGES[page]["name"] }}</a>
-                                            </li>
-                                        {% else %}
-                                            <li>
-                                                <a href="{{ PAGES[page]['deeplink'] }}" class="nav-link px-2 text-white">{{ PAGES[page]["name"] }}</a>
-                                            </li>
-                                        {% endif %}
+        <div class="container py-4">
+            <header class="p-3 bg-dark text-white">
+                <div class="container">
+                    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                            {% for page in PAGES %}
+                                {% if PAGES[page]["show_in_nav"] and (PAGES[page]["permission"] == None or PAGES[page]["permission"] in permissions) %}
+                                    {% if page==current_page %}
+                                        <li>
+                                            <a class="nav-link px-2 text-secondary">{{ PAGES[page]["name"] }}</a>
+                                        </li>
+                                    {% else %}
+                                        <li>
+                                            <a href="{{ PAGES[page]['deeplink'] }}" class="nav-link px-2 text-white">{{ PAGES[page]["name"] }}</a>
+                                        </li>
                                     {% endif %}
-                                {% endfor %}
-                            </ul>
-                            <div class="text-end">
-                                <span>Signed in as {{ user_info["name"] }}</span>
-                                <button type="button" class="btn btn-outline-light me-2">Sign out</button>
-                            </div>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                        <div class="text-end">
+                            <span>Signed in as {{ user_info["name"] }}</span>
+                            <button type="button" class="btn btn-outline-light me-2">Sign out</button>
                         </div>
                     </div>
-                </header>
-                {% block content %}If you can see this you have encountered an error.{% endblock %}
-            </div>
+                </div>
+            </header>
+        </div>
+        <main>
+            {% block content %}If you can see this you have encountered an error.{% endblock %}
         </main>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha384-3X08TGY2WowzEpDvZJo32TimV75qUCS55P8QNJqHXNpVOddjNgiZDIXqaBdVMOhr"></script>
         {% block scripts %}{% endblock %}
     </body>
 </html>
