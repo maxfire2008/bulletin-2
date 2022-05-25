@@ -6,6 +6,8 @@ import datetime
 # import markdown_it
 import base64
 import flask_minify
+import time
+import json
 
 #import requests
 #STACK_EDIT = "data:text/base64,"+base64.urlsafe_b64encode(requests.get("https://unpkg.com/stackedit-js@1.0.7/docs/lib/stackedit.min.js").content).decode()
@@ -291,7 +293,7 @@ def item_edit(id):
     item = fetch_item(id)
     if item["owner"] == user_id or "edit_all" in get_permissions(user_id):
         return flask.render_template(
-            'edit.html.j2',
+            'item_edit.html.j2',
             current_page="edit",
             PAGES=PAGES,
             bulletin_config=bulletin_config,
@@ -315,42 +317,39 @@ def item_edit(id):
 @app.route("/api/item/edit/<id>", methods=["POST"])
 def item_edit_execute(id):
     user_id = flask.request.cookies.get('user_id')
+    item = fetch_item(id)
     if item["owner"] == user_id or "edit_all" in get_permissions(user_id):
-        current_item = fetch_item(id)
-        if flask.request.form["last_edit"] < current_item["last_edit"]:
+        if int(flask.request.form["last_edit"]) < item["last_edit"]:
             return json.dumps(
                 {
                     "error": "This item has been edited since you loaded it. Please reload the page.",
                     "current_state": {
-                        "title": current_item["title"],
-                        "content": current_item["content"],
-                        "notes": current_item["notes"],
-                        "grades": current_item["grades"],
+                        "title": item["title"],
+                        "content": item["content"],
+                        "notes": item["notes"],
+                        "grades": item["grades"],
                     }
                 }
             ), 409
         conn = database_connection()
         cur = conn.cursor()
         cur.execute(
-            'UPDATE "bulletin-2".bulletins ' +
-            'SET "title" = %s, "content" = %s, "notes" = %s, "grades" = %s ' +
+            'UPDATE "bulletin-2".items ' +
+            'SET "title" = %s, "content" = %s, "notes" = %s, "grades" = %s, "last_edit" = %s ' +
             'WHERE id = %s',
             (
-                flask.request.form["title"],
-                flask.request.form["content"],
-                flask.request.form["notes"],
-                flask.request.form["grades"],
+                json.loads(flask.request.form["title"]),
+                json.loads(flask.request.form["content"]),
+                json.loads(flask.request.form["notes"]),
+                json.loads(flask.request.form["grades"]),
+                int(time.time()),
                 id,
             )
         )
+        cur.close()
         conn.commit()
         conn.close()
         return json.dumps({"success": True}), 200
-        )
-        conn.commit()
-        cur.close()
-        conn.close()
-        return "Success!", 200
     else:
         return flask.render_template(
             "error.html.j2",

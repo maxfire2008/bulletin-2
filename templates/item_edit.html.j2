@@ -84,7 +84,7 @@ grades checkboxes 7,8,9,10
             var grades = [];
             {% for grade in bulletin_config.SUPPORTED_GRADES %}
                 if ($('#grade{{ grade }}').prop('checked')) {
-                    grades.push('{{ grade }}');
+                    grades.push({{ grade }});
                 }
             {% endfor %}
             return grades;
@@ -102,10 +102,10 @@ grades checkboxes 7,8,9,10
                         "notes": original_notes,
                         "grades": original_grades
                     },*/
-                    "title": title.value,
-                    "content": content.value,
-                    "notes": notes.value,
-                    "grades": selectedGrades(),
+                    "title": JSON.stringify(title.value),
+                    "content": JSON.stringify(content.value),
+                    "notes": JSON.stringify(notes.value),
+                    "grades": JSON.stringify(selectedGrades()),
                     "last_edit": {{ item["last_edit"]|tojson }}
                 },
                 success: function (data) {
