@@ -56,7 +56,7 @@ USERS_LIST = {
         "last_name": "Citizen",
         "email": "john.citizen@example.com",
         "name": "John Citizen",
-        "permissions": ["view_early", "minor_approve", "major_approve", "admin", "superuser"],
+        "permissions": ["view_early", "minor_approve", "major_approve", "admin", "superuser", "edit_all"],
     },
     "2": {
         "first_name": "Jane",
@@ -97,6 +97,7 @@ def base64_encode(string):
     if type(string) is str:
         string = string.encode()
     return base64.urlsafe_b64encode(string).decode()
+
 
 def get_items_for_user(user_id: list[str], limit: int = 500, offset: int = 0):
     conn = database_connection()
@@ -284,11 +285,11 @@ def bulletin():
         ), 400
 
 
-@app.route("/edit/<id>")
-def edit(id):
+@app.route("/item/edit/<id>")
+def item_edit(id):
     user_id = flask.request.cookies.get('user_id')
     item = fetch_item(id)
-    if item["owner"] == user_id:
+    if item["owner"] == user_id or "edit_all" in get_permissions(user_id):
         return flask.render_template(
             'edit.html.j2',
             current_page="edit",
@@ -299,6 +300,57 @@ def edit(id):
             item=item,
             base64_encode=base64_encode,
         )
+    else:
+        return flask.render_template(
+            "error.html.j2",
+            error="403: You are not allowed to edit this item",
+            current_page="error",
+            PAGES=PAGES,
+            bulletin_config=bulletin_config,
+            permissions=get_permissions(user_id),
+            user_info=USERS_LIST[user_id],
+        ), 403
+
+
+@app.route("/api/item/edit/<id>", methods=["POST"])
+def item_edit_execute(id):
+    user_id = flask.request.cookies.get('user_id')
+    if item["owner"] == user_id or "edit_all" in get_permissions(user_id):
+        current_item = fetch_item(id)
+        if flask.request.form["last_edit"] < current_item["last_edit"]:
+            return json.dumps(
+                {
+                    "error": "This item has been edited since you loaded it. Please reload the page.",
+                    "current_state": {
+                        "title": current_item["title"],
+                        "content": current_item["content"],
+                        "notes": current_item["notes"],
+                        "grades": current_item["grades"],
+                    }
+                }
+            ), 409
+        conn = database_connection()
+        cur = conn.cursor()
+        cur.execute(
+            'UPDATE "bulletin-2".bulletins ' +
+            'SET "title" = %s, "content" = %s, "notes" = %s, "grades" = %s ' +
+            'WHERE id = %s',
+            (
+                flask.request.form["title"],
+                flask.request.form["content"],
+                flask.request.form["notes"],
+                flask.request.form["grades"],
+                id,
+            )
+        )
+        conn.commit()
+        conn.close()
+        return json.dumps({"success": True}), 200
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+        return "Success!", 200
     else:
         return flask.render_template(
             "error.html.j2",

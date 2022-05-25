@@ -42,22 +42,15 @@ grades checkboxes 7,8,9,10
         <div class="input-group mb-3">
             <span class="input-group-text" id="gradesLabel">Grades <a title="This means anyone at THS can see this field in it's entirety">(PUBLIC)</a></span>
             <div class="form-control">
-                <div class="form-check-inline">
-                    <input class="form-check-input" type="checkbox" value="7" id="grade7">
-                    <label class="form-check-label" for="grade7">7</label>
-                </div>
-                <div class="form-check-inline">
-                    <input class="form-check-input" type="checkbox" value="8" id="grade8">
-                    <label class="form-check-label" for="grade8">8</label>
-                </div>
-                <div class="form-check-inline">
-                    <input class="form-check-input" type="checkbox" value="9" id="grade9">
-                    <label class="form-check-label" for="grade9">9</label>
-                </div>
-                <div class="form-check-inline">
-                    <input class="form-check-input" type="checkbox" value="10" id="grade10">
-                    <label class="form-check-label" for="grade10">10</label>
-                </div>
+                {% for grade in bulletin_config.SUPPORTED_GRADES %}
+                    <div class="form-check-inline">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               value="{{ grade }}"
+                               id="grade{{ grade }}">
+                        <label class="form-check-label" for="grade{{ grade }}">{{ grade }}</label>
+                    </div>
+                {% endfor %}
             </div>
         </div>
         <!--Save-->
@@ -81,22 +74,47 @@ grades checkboxes 7,8,9,10
         content.value = original_content;
         notes.value = original_notes;
 
-        {% for grade in [7, 8, 9, 10] %}
+        {% for grade in bulletin_config.SUPPORTED_GRADES %}
             {% if grade in item["grades"] or -1 in item["grades"] %}
                 $('#grade{{ grade }}').prop('checked', true);
             {% endif %}
         {% endfor %}
 
+        function selectedGrades() {
+            var grades = [];
+            {% for grade in bulletin_config.SUPPORTED_GRADES %}
+                if ($('#grade{{ grade }}').prop('checked')) {
+                    grades.push('{{ grade }}');
+                }
+            {% endfor %}
+            return grades;
+        }
+
         // save button send the original as well as the new data
         $('#saveButton').click(function () {
             $.ajax({
-                url: '/api/bulletins/{{ item["id"] }}',
+                url: '/api/item/edit/{{ item["id"] }}',
                 type: 'POST',
                 data: {
-                    old_data
+                    /*"old_data": {
+                        "title": original_title,
+                        "content": original_content,
+                        "notes": original_notes,
+                        "grades": original_grades
+                    },*/
+                    "title": title.value,
+                    "content": content.value,
+                    "notes": notes.value,
+                    "grades": selectedGrades(),
+                    "last_edit": {{ item["last_edit"]|tojson }}
                 },
                 success: function (data) {
-                    window.location.href = '/bulletins/{{ item["id"] }}';
+                    alert("Success!");
+                    console.log("Success! data:"+data);
+                },
+                error: function (data) {
+                    alert("Error!");
+                    console.log("Error, data:"+data);
                 }
             });
         });
