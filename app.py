@@ -93,6 +93,11 @@ def database_connection():
         password=bulletin_config.DATABASE_PASSWORD)
 
 
+def base64_encode(string):
+    if type(string) is str:
+        string = string.encode()
+    return base64.urlsafe_b64encode(string).decode()
+
 def get_items_for_user(user_id: list[str], limit: int = 500, offset: int = 0):
     conn = database_connection()
     cur = conn.cursor()
@@ -254,7 +259,7 @@ def bulletin():
                 user_info=USERS_LIST[user_id],
                 bulletin_date=date,
                 bulletin_items=fetch_items_for_day(date),
-                base64_encode=base64.b64encode,
+                base64_encode=base64_encode,
                 viewing_early=(not (datetime.date.today()-date).days >= 0)
             )
         else:
@@ -292,7 +297,7 @@ def edit(id):
             permissions=get_permissions(user_id),
             user_info=USERS_LIST[user_id],
             item=item,
-            base64_encode=base64.b64encode,
+            base64_encode=base64_encode,
         )
     else:
         return flask.render_template(

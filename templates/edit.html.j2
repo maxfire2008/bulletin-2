@@ -41,22 +41,28 @@ grades checkboxes 7,8,9,10
         <!--Grades-->
         <div class="input-group mb-3">
             <span class="input-group-text" id="gradesLabel">Grades <a title="This means anyone at THS can see this field in it's entirety">(PUBLIC)</a></span>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="7" id="grade7">
-                <label class="form-check-label" for="grade7">7</label>
+            <div class="form-control">
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="checkbox" value="7" id="grade7">
+                    <label class="form-check-label" for="grade7">7</label>
+                </div>
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="checkbox" value="8" id="grade8">
+                    <label class="form-check-label" for="grade8">8</label>
+                </div>
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="checkbox" value="9" id="grade9">
+                    <label class="form-check-label" for="grade9">9</label>
+                </div>
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="checkbox" value="10" id="grade10">
+                    <label class="form-check-label" for="grade10">10</label>
+                </div>
             </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="8" id="grade8">
-                <label class="form-check-label" for="grade8">8</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="9" id="grade9">
-                <label class="form-check-label" for="grade9">9</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="10" id="grade10">
-                <label class="form-check-label" for="grade10">10</label>
-            </div>
+        </div>
+        <!--Save-->
+        <div class="input-group mb-3">
+            <button type="button" class="btn btn-primary" id="saveButton">Save</button>
         </div>
     {% endblock %}
     {% block scripts %}
@@ -65,43 +71,35 @@ grades checkboxes 7,8,9,10
         $(document).ready(function () {
             $('.auto-resize').autoResize();
         });
-        </script>
-        <script>
-        /*content.oninput = function() {
-            //content.rows=0;
-            // create element for test render
-            var test = document.createElement('textarea');
-            test.classList.add("form-control");
-            test.classList.add("delete-me");
-            test.id = "testTextArea";
 
-            testdiv = document.createElement('div');
-            //with classes input-group mb-3
-            testdiv.classList.add("input-group");
-            testdiv.classList.add("mb-3");
-            testdiv.classList.add("delete-me");
+        original_title = {{ item["title"]|tojson }};
+        original_content = {{ item["content"]|tojson }};
+        original_notes = {{ item["notes"]|tojson }};
+        original_grades = {{ item["grades"]|tojson }};
 
-            //append <span class="input-group-text" id="contentLabel">Content</span> to testdiv
-            var testLabel = document.createElement('span');
-            testLabel.classList.add("input-group-text");
-            testLabel.textContent = "Content";
-            testLabel.classList.add("delete-me");
-            testdiv.appendChild(testLabel);
-            testdiv.appendChild(test);
-            $("#content").parent().parent()[0].appendChild(testdiv);
-            test.value = content.value;
-            test.rows = 0;
-            var padding = parseInt($('#testTextArea').css('paddingTop'),10) + parseInt($('#testTextArea').css('paddingBottom'),10);
-            //var contentLineHeight = 24; // This should match the line-height in the CSS
-            var contentHeight = test.scrollHeight - padding; // Get the scroll height of the textarea
-            //ta.style.height = taHeight; // This line is optional, I included it so you can more easily count the lines in an expanded textarea
-            console.log(contentHeight);
-            console.log($('#testTextArea').css('lineHeight'));
-            var numberOfLines = Math.floor(contentHeight/parseInt($('#testTextArea').css('lineHeight'),10));
-            console.log(numberOfLines);
-            content.rows = numberOfLines+1; // Set the number of rows to the number of lines
-            $(".delete-me").remove();
-        };*/
+        title.value = original_title;
+        content.value = original_content;
+        notes.value = original_notes;
+
+        {% for grade in [7, 8, 9, 10] %}
+            {% if grade in item["grades"] or -1 in item["grades"] %}
+                $('#grade{{ grade }}').prop('checked', true);
+            {% endif %}
+        {% endfor %}
+
+        // save button send the original as well as the new data
+        $('#saveButton').click(function () {
+            $.ajax({
+                url: '/api/bulletins/{{ item["id"] }}',
+                type: 'POST',
+                data: {
+                    old_data
+                },
+                success: function (data) {
+                    window.location.href = '/bulletins/{{ item["id"] }}';
+                }
+            });
+        });
 
         </script>
     {% endblock %}

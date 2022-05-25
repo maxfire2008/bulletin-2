@@ -2,6 +2,8 @@ SCHOOL_NAME = "Sunny Valley High School"
 SCHOOL_NAME_SHORT = "SVHS"
 APP_NAME = "Bulletin Viewer"
 
+SUPPORTED_GRADES = [1,2,3,4,5,6]
+
 DATABASE_HOST="127.0.0.1"
 DATABASE_PORT=5432
 DATABASE_NAME="bulletin-2"
