@@ -320,17 +320,18 @@ def item_edit_execute(id):
     item = fetch_item(id)
     if item["owner"] == user_id or "edit_all" in get_permissions(user_id):
         if int(flask.request.form["last_edit"]) < item["last_edit"]:
-            return json.dumps(
-                {
-                    "error": "This item has been edited since you loaded it. Please reload the page.",
-                    "current_state": {
-                        "title": item["title"],
-                        "content": item["content"],
-                        "notes": item["notes"],
-                        "grades": item["grades"],
-                    }
-                }
-            ), 409
+            # return json.dumps(
+            #     {
+            #         "error": "This item has been edited since you loaded it. Please reload the page.",
+            #         "current_state": {
+            #             "title": item["title"],
+            #             "content": item["content"],
+            #             "notes": item["notes"],
+            #             "grades": item["grades"],
+            #         }
+            #     }
+            # ), 409
+            return "newer_version_in_database", 409
         conn = database_connection()
         cur = conn.cursor()
         cur.execute(

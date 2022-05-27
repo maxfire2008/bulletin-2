@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% block title %}Editing <span id="bulletinTitleInTitleTag">{{ item["title"] }}</span> -{% endblock %}
+{% block title %}Editing {{ item["title"] }} -{% endblock %}
 {% block content %}
     <div class="container">
         <!--
@@ -57,10 +57,11 @@ grades checkboxes 7,8,9,10
         <div class="input-group mb-3">
             <button type="button" class="btn btn-primary" id="saveButton">Save</button>
         </div>
-    {% endblock %}
-    {% block scripts %}
-        <script src="https://cdn.jsdelivr.net/gh/azoff/AutoResize@4a3f3c8/jquery.autoresize.min.js" integrity="sha384-3X08TGY2WowzEpDvZJo32TimV75qUCS55P8QNJqHXNpVOddjNgiZDIXqaBdVMOhr" crossorigin="anonymous"></script>
-        <script>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/gh/azoff/AutoResize@4a3f3c8/jquery.autoresize.min.js" integrity="sha384-3X08TGY2WowzEpDvZJo32TimV75qUCS55P8QNJqHXNpVOddjNgiZDIXqaBdVMOhr" crossorigin="anonymous"></script>
+    <script>
         $(document).ready(function () {
             $('.auto-resize').autoResize();
         });
@@ -114,10 +115,10 @@ grades checkboxes 7,8,9,10
                 },
                 error: function (data) {
                     alert("Error!");
-                    console.log("Error, data:"+data);
+                    console.log(data);
                 }
             });
         });
 
-        </script>
-    {% endblock %}
+    </script>
+{% endblock %}
