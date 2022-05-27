@@ -1,7 +1,7 @@
 {% extends 'base.html.j2' %}
 {% block title %}Editing {{ item["title"] }} -{% endblock %}
 {% block content %}
-    <div class="container">
+    <div class="container py-4">
         <!--
 title text
 content long text
@@ -110,12 +110,23 @@ grades checkboxes 7,8,9,10
                     "last_edit": {{ item["last_edit"]|tojson }}
                 },
                 success: function (data) {
-                    alert("Success!");
+                    window.location.reload();
                     console.log("Success! data:"+data);
                 },
                 error: function (data) {
-                    alert("Error!");
-                    console.log(data);
+                    // response content javascript
+                    if (data.status === 409 && data.responseText === "newer_version_in_database") {
+                        $('#saveButton').prop('disabled', true);
+                        // add link to edit in new tab next to save
+                        $('#saveButton').after('<a href="/item/edit/{{ item["id"] }}" target="_blank" class="btn btn-primary">Open new tab</a>');
+                        $('body').css('background-color', '#54bef0');
+                        // A newer version of this item is in the database. This page has been frozen as reference. You can choose the button at the bottom of the page to open a new tab to continue editing.
+                        // add error message
+                        $('#saveButton').parent().after('<div class="alert alert-danger" role="alert">A newer version of this item is in the database. This page has been frozen as reference. You can choose the button at the bottom of the page to open a new tab to continue editing.</div>');
+                    } else {
+                        alert("Unknown error!");
+                        console.log(data);
+                    }
                 }
             });
         });
