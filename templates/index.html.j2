@@ -26,7 +26,7 @@
                 <ul class="list-group">
                     {% for bulletin in bulletins %}
                         <a class="btn btn-primary list-group-item d-flex justify-content-between align-items-center"
-                           href="/bulletin?date={{ bulletin[0].strftime(" %Y-%m-%d") }}">
+                           href="/bulletin?date={{ bulletin[0].strftime('%Y-%m-%d') }}">
                             {{ bulletin[0].strftime("%A the %dth of %B %Y") }}
                             <span class="badge bg-primary rounded-pill">{{ get_age_from_time(bulletin[0]) }}</span>
                         </a>
