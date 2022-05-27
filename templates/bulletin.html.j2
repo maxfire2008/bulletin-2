@@ -16,13 +16,13 @@
                 </div>
                 {% if bulletin_items|length == 0 %}
                     <div class="d-flex w-100 justify-content-between alert alert-primary">
-                        This bulletin has no items. This is probally because it is early.
+                        This bulletin has no items. This is probably because it is early.
                     </div>
                 {% endif %}
             {% else %}
                 {% if bulletin_items|length == 0 %}
                     <div class="d-flex w-100 justify-content-between alert alert-primary">
-                        This bulletin has no items. This is probally because it is not on a school day.
+                        This bulletin has no items. This is probably because it is not on a school day.
                     </div>
                 {% endif %}
             {% endif %}
@@ -62,7 +62,7 @@
         {% for item in bulletin_items %}
             const stackedit{{ item["id"] }} = new Stackedit();
             stackedit{{ item["id"] }}.openFile({
-                content: { text: base64DecodeUnicode("{{ base64_encode(item["content"].encode()).decode() }}") }
+                content: { text: {{ item["content"]|tojson }} }
             }, true /* silent mode */);
             stackedit{{ item["id"] }}.on('fileChange', (file) => {
                 document.getElementById("{{ item["id"] }}Content").innerHTML = file.content.html;
