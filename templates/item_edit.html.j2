@@ -62,14 +62,23 @@ grades checkboxes 7,8,9,10
             </div>
             <div class="col-md-6">
                 <div class="list-group">
+                    <h4>Internal preview</h4>
                     <div class="list-group-item bulletin-item">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1 word-wrap" id="previewTitle"></h5>
                         </div>
                         <p class="mb-1 word-wrap" id="previewContent">
-
                         </p>
                         <small id="previewGrades"></small>
+                    </div>
+                    <h4>Public preview</h4>
+                    <div class="list-group-item bulletin-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1 word-wrap" id="previewTitlePublic"></h5>
+                        </div>
+                        <p class="mb-1 word-wrap" id="previewContentPublic">
+                        </p>
+                        <small id="previewGradesPublic"></small>
                     </div>
                 </div>
             </div>
@@ -163,7 +172,8 @@ grades checkboxes 7,8,9,10
                     console.log(data);
                     parsed = JSON.parse(data);
                     console.log(parsed);
-                    $('#previewContent').html(parsed["preview"]);
+                    $('#previewContent').html(parsed["preview_internal"]);
+                    $('#previewContentPublic').html(parsed["preview_public"]);
                     waitUntilPreview = parsed["wait_until_preview"];
                     previewRate = parsed["preview_rate"];
                 },
@@ -189,6 +199,7 @@ grades checkboxes 7,8,9,10
 
         function previewTitle() {
             $('#previewTitle').html(title.value);
+            $('#previewTitlePublic').html(title.value);
         }
 
         $("#title").on('input', previewTitle);
@@ -204,8 +215,10 @@ grades checkboxes 7,8,9,10
             */
             if (grades.includes(-1)) {
                 $('#previewGrades').html('<i>All Grades</i>');
+                $('#previewGradesPublic').html('<i>All Grades</i>');
             } else {
                 $('#previewGrades').html('<b>' + grades.join('</b>, <b>') + '</b>');
+                $('#previewGradesPublic').html('<b>' + grades.join('</b>, <b>') + '</b>');
             }
         };
 

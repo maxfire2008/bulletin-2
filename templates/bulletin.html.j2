@@ -33,7 +33,7 @@
                         {# <small>3 days ago</small> #}
                     </div>
                     <p class="mb-1 word-wrap" id="{{ item['id'] }}Content">
-                        {{ item["content"] }}
+                        {{ render_markdown(item["content"], visibility="internal")|safe }}
                     </p>
                     <small>{{ item["grades_string"]|safe }}</small>
                 </div>
@@ -57,7 +57,7 @@
         $(".bulletin-item").find("img").addClass("img-fluid");
     </script>
     #}
-    <script src="https://unpkg.com/stackedit-js@1.0.7/docs/lib/stackedit.min.js" integrity="sha384-sLRzZkCy+/B2DXBh8ehQduKr+paQ4Y3RNSIEHvOtbWFSuPTrHEQ2UPrEK4bN9+Ff" crossorigin="anonymous"></script>
+    {#<script src="https://unpkg.com/stackedit-js@1.0.7/docs/lib/stackedit.min.js" integrity="sha384-sLRzZkCy+/B2DXBh8ehQduKr+paQ4Y3RNSIEHvOtbWFSuPTrHEQ2UPrEK4bN9+Ff" crossorigin="anonymous"></script>
     <script>
         {% for item in bulletin_items %}
             const stackedit{{ item["id"] }} = new Stackedit();
@@ -69,5 +69,5 @@
                 $(".bulletin-item").find("img").addClass("img-fluid");
             });
         {% endfor %}
-    </script>
+    </script>#}
 {% endblock %}

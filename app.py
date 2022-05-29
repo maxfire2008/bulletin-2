@@ -221,11 +221,11 @@ def get_age_from_time(time_from: datetime.datetime):
         return f"{days // 365} years ago"
 
 def filter_visibility(text,visibility="public"):
-    if visibility != "private":
-        text = re.sub("<!--private-->(?s:.)*?<!--\/private-->\n?","",text)
+    if visibility != "internal":
+        text = re.sub("<!--internal-->(?s:.)*?<!--\/internal-->\n?","",text)
     if visibility != "public":
         text = re.sub("<!--public-->(?s:.)*?<!--\/public-->\n?","",text)
-    text = re.sub("<!--/?private-->\n?","",text)
+    text = re.sub("<!--/?internal-->\n?","",text)
     text = re.sub("<!--/?public-->\n?","",text)
     return text
 
@@ -308,7 +308,8 @@ def bulletin():
                 bulletin_date=date,
                 bulletin_items=fetch_items_for_day(date),
                 base64_encode=base64_encode,
-                viewing_early=(not (datetime.date.today()-date).days >= 0)
+                viewing_early=(not (datetime.date.today()-date).days >= 0),
+                render_markdown=render_markdown,
             )
         else:
             return flask.render_template(
@@ -411,7 +412,8 @@ def item_edit_execute(id):
 def preview():
     return json.dumps(
         {
-            "preview": render_markdown(json.loads(flask.request.form["content"])),
+            "preview_internal": render_markdown(json.loads(flask.request.form["content"]), "internal"),
+            "preview_public": render_markdown(json.loads(flask.request.form["content"]), "public"),
             "wait_until_preview": 1000,
             "preview_rate": 5000,
         }
