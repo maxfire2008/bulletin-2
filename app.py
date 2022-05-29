@@ -8,6 +8,9 @@ import base64
 import flask_minify
 import time
 import json
+import re
+import markdown
+import bleach
 
 #import requests
 #STACK_EDIT = "data:text/base64,"+base64.urlsafe_b64encode(requests.get("https://unpkg.com/stackedit-js@1.0.7/docs/lib/stackedit.min.js").content).decode()
@@ -217,6 +220,48 @@ def get_age_from_time(time_from: datetime.datetime):
     else:
         return f"{days // 365} years ago"
 
+def filter_visibility(text,visibility="public"):
+    if visibility != "private":
+        text = re.sub("<!--private-->(?s:.)*?<!--\/private-->\n?","",text)
+    if visibility != "public":
+        text = re.sub("<!--public-->(?s:.)*?<!--\/public-->\n?","",text)
+    text = re.sub("<!--/?private-->\n?","",text)
+    text = re.sub("<!--/?public-->\n?","",text)
+    return text
+
+def render_markdown(text: str, visibility: str = "public"):
+    text = filter_visibility(text,visibility)
+    rendered_markdown = markdown.markdown(
+        text,
+        extensions=['tables']
+    )
+
+    return bleach.clean(
+        rendered_markdown,
+        tags=[
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6",
+            "p",
+            "strong",
+            "em",
+            "blockquote",
+            "ul",
+            "ol",
+            "li",
+            "code",
+            "a",
+            "img",
+        ],
+        attributes={
+            "*": ["class"],
+            "a": ["href", "title"],
+            "img": ["src", "alt", "title"],
+        }
+    )
 
 @app.route('/')
 def index():
@@ -362,6 +407,15 @@ def item_edit_execute(id):
             user_info=USERS_LIST[user_id],
         ), 403
 
+@app.route("/api/preview/", methods=["POST"])
+def preview():
+    return json.dumps(
+        {
+            "preview": render_markdown(json.loads(flask.request.form["content"])),
+            "wait_until_preview": 1000,
+            "preview_rate": 5000,
+        }
+    )
 
 @app.route("/login/<id>")
 def login(id):

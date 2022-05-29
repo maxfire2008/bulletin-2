@@ -29,10 +29,10 @@
             {% for item in bulletin_items %}
                 <div class="list-group-item bulletin-item">
                     <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">{{ item["title"] }}</h5>
+                        <h5 class="mb-1 word-wrap">{{ item["title"] }}</h5>
                         {# <small>3 days ago</small> #}
                     </div>
-                    <p class="mb-1" id="{{ item['id'] }}Content">
+                    <p class="mb-1 word-wrap" id="{{ item['id'] }}Content">
                         {{ item["content"] }}
                     </p>
                     <small>{{ item["grades_string"]|safe }}</small>
