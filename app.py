@@ -286,7 +286,8 @@ def item_edit_execute(id):
             id,
             json.loads(flask.request.form["title"]),
             json.loads(flask.request.form["content"]),
-            json.loads(flask.request.form["notes"])
+            json.loads(flask.request.form["notes"]),
+            json.loads(flask.request.form["grades"]),
         )
         return json.dumps({"success": True}), 200
     else:
