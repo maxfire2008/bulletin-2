@@ -80,11 +80,6 @@ USERS_LIST = {
 def get_permissions(user_id):
     return USERS_LIST[user_id]["permissions"]
 
-# MARKDOWN_IT_RENDERER = (
-#     markdown_it.MarkdownIt()
-#     # .enable('table')
-# )
-
 
 @app.route('/')
 def index():
@@ -225,8 +220,8 @@ def item_edit_execute(id):
 def preview():
     return json.dumps(
         {
-            "preview_internal": render_markdown(json.loads(flask.request.form["content"]), "internal"),
-            "preview_public": render_markdown(json.loads(flask.request.form["content"]), "public"),
+            "preview_internal": render_markdown.render_markdown(json.loads(flask.request.form["content"]), "internal"),
+            "preview_public": render_markdown.render_markdown(json.loads(flask.request.form["content"]), "public"),
             "wait_until_preview": 1000,
             "preview_rate": 5000,
         }
