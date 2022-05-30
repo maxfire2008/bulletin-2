@@ -3,13 +3,11 @@ import flask
 import bulletin_config
 import datetime
 # import markdown_it
-import base64
 import flask_minify
 import json
-import re
-import markdown
-import bleach
 import database
+import utilities
+import render_markdown
 
 #import requests
 #STACK_EDIT = "data:text/base64,"+base64.urlsafe_b64encode(requests.get("https://unpkg.com/stackedit-js@1.0.7/docs/lib/stackedit.min.js").content).decode()
@@ -88,85 +86,6 @@ def get_permissions(user_id):
 # )
 
 
-def base64_encode(string):
-    if type(string) is str:
-        string = string.encode()
-    return base64.urlsafe_b64encode(string).decode()
-
-
-def grades_string(grades: list):
-    if -1 in grades:
-        return "<i>All Grades</i>"
-    else:
-        return "<b>"+"</b>, <b>".join(map(str, grades))+"</b>"
-
-
-def get_age_from_time(time_from: datetime.datetime):
-    # subtract time_from from now
-    time_diff = datetime.datetime.now(
-    ) - datetime.datetime.combine(time_from, datetime.time())
-
-    days = time_diff.days
-
-    if days == 0:
-        return "Today"
-    elif days == 1:
-        return "Yesterday"
-    elif days < 7:
-        return f"{days} days ago"
-    elif days < 30:
-        return f"{days // 7} weeks ago"
-    elif days < 365:
-        return f"{days // 30} months ago"
-    else:
-        return f"{days // 365} years ago"
-
-
-def filter_visibility(text, visibility="public"):
-    if visibility != "internal":
-        text = re.sub("<!--internal-->(?s:.)*?<!--\/internal-->\n?", "", text)
-    if visibility != "public":
-        text = re.sub("<!--public-->(?s:.)*?<!--\/public-->\n?", "", text)
-    text = re.sub("<!--/?internal-->\n?", "", text)
-    text = re.sub("<!--/?public-->\n?", "", text)
-    return text
-
-
-def render_markdown(text: str, visibility: str = "public"):
-    text = filter_visibility(text, visibility)
-    rendered_markdown = markdown.markdown(
-        text,
-        extensions=['tables']
-    )
-
-    return bleach.clean(
-        rendered_markdown,
-        tags=[
-            "h1",
-            "h2",
-            "h3",
-            "h4",
-            "h5",
-            "h6",
-            "p",
-            "strong",
-            "em",
-            "blockquote",
-            "ul",
-            "ol",
-            "li",
-            "code",
-            "a",
-            "img",
-        ],
-        attributes={
-            "*": ["class"],
-            "a": ["href", "title"],
-            "img": ["src", "alt", "title"],
-        }
-    )
-
-
 @app.route('/')
 def index():
     user_id = flask.request.cookies.get('user_id')
@@ -178,7 +97,7 @@ def index():
         permissions=get_permissions(user_id),
         user_info=USERS_LIST[user_id],
         bulletins=database.fetch_bulletins(earlier_than=datetime.date.today()),
-        get_age_from_time=get_age_from_time,
+        utilities=utilities,
         users_items=database.get_items_for_user([user_id]),
     )
 
@@ -211,7 +130,7 @@ def bulletin():
                 user_info=USERS_LIST[user_id],
                 bulletin_date=date,
                 bulletin_items=database.fetch_items_for_day(date),
-                base64_encode=base64_encode,
+                utilities=utilities,
                 viewing_early=(not (datetime.date.today()-date).days >= 0),
                 render_markdown=render_markdown,
             )
@@ -250,7 +169,7 @@ def item_edit(id):
             permissions=get_permissions(user_id),
             user_info=USERS_LIST[user_id],
             item=item,
-            base64_encode=base64_encode,
+            utilities=utilities,
         )
     else:
         return flask.render_template(

@@ -3,6 +3,7 @@ import bulletin_config
 import time
 import bulletin_config
 import datetime
+import utilities
 
 
 def connection():
@@ -83,7 +84,7 @@ def fetch_bulletins(limit: int = 500, offset: int = 0, earlier_than: datetime.da
 
 
 def fetch_items_for_day(date: datetime.date):
-    conn = database.connection()
+    conn = connection()
     cur = conn.cursor()
     cur.execute('SELECT distinct on ("bulletin-2".items.id) "bulletin-2".items.id, "bulletin-2".items.title, "bulletin-2".items."content", "bulletin-2".items.grades ' +
                 'FROM "bulletin-2".occurrences, "bulletin-2".items ' +
@@ -99,7 +100,7 @@ def fetch_items_for_day(date: datetime.date):
         "title": item[1],
         "content": item[2],
         "grades": item[3],
-        "grades_string": grades_string(item[3]),
+        "grades_string": utilities.grades_string(item[3]),
     } for item in results]
 
 

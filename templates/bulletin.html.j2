@@ -52,7 +52,7 @@
         })*/;
         function base64DecodeUnicode(str) {percentEncodedStr = atob(str).split('').map(function(c) {return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);}).join('');return decodeURIComponent(percentEncodedStr);}
         {% for item in bulletin_items %}
-            document.getElementById("{{ item["id"] }}Content").innerHTML = markdownIt.render(base64DecodeUnicode("{{ base64_encode(item["content"].encode()).decode() }}"));
+            document.getElementById("{{ item["id"] }}Content").innerHTML = markdownIt.render(base64DecodeUnicode("{{ utilities.base64_encode(item["content"].encode()).decode() }}"));
         {% endfor %}
         $(".bulletin-item").find("img").addClass("img-fluid");
     </script>
