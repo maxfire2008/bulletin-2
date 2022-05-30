@@ -1,16 +1,28 @@
-import re
+import regex
 import markdown
 import bleach
 
 
-def filter_visibility(text, visibility="public"):
-    if visibility != "internal":
-        text = re.sub("<!--internal-->(?s:.)*?<!--\/internal-->\n?", "", text)
-    if visibility != "public":
-        text = re.sub("<!--public-->(?s:.)*?<!--\/public-->\n?", "", text)
-    text = re.sub("<!--/?internal-->\n?", "", text)
-    text = re.sub("<!--/?public-->\n?", "", text)
-    return text
+def check_text(match: regex.Match, visibilities: list[str]):
+    text = regex.search("(?<=(<!--[^\/]+?-->\n?)).*(?=(\n?<!--\/-->))",
+                        match.group(), flags=regex.DOTALL).group().strip("\n")
+    visibility = regex.findall("(?<=(<!--[^\/]+?-->)).*(?=(<!--\/-->))",
+                  match.group(), flags=regex.DOTALL)[0][0][4:-3]
+    # print(repr(text))
+    # text = search_result
+    # if True:
+    if (visibility.startswith("!") and visibility not in visibilities) or visibility in visibilities:
+        return filter_visibility(text, visibilities)
+    return ""
+
+
+def filter_visibility(text: str, visibilities=["public"]):
+    return regex.sub(
+        "\n?<!--[^\/]+?-->(?:(?!<!--[^\/]+?-->|<!--\/-->).|(?R))*<!--\/-->",
+        lambda a: check_text(a, visibilities=visibilities),
+        text,
+        flags=regex.DOTALL
+    )
 
 
 def render_markdown(text: str, visibility: str = "public"):
@@ -46,3 +58,15 @@ def render_markdown(text: str, visibility: str = "public"):
             "img": ["src", "alt", "title"],
         }
     )
+
+
+if __name__ == "__main__":
+    x = """Concrete is made up of 
+<!--internal-->
+<!--test.user@example.com-->Tim and Joe<!--/-->
+<!--!test.user@example.com-->Potato heads<!--/-->
+<!--/-->
+<!--public-->
+many *different* students
+<!--/-->"""
+    print(filter_visibility(x,visibilities=["internal"]))
