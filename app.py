@@ -35,7 +35,7 @@ PAGES = {
         "show_in_nav": False,
         "permission": None,
     },
-    "bullletin": {
+    "bulletin": {
         "name": "Bulletin",
         "deeplink": "#",
         "show_in_nav": False,
