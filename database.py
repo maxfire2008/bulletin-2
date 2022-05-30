@@ -1,6 +1,8 @@
 import psycopg2
 import bulletin_config
 import time
+import bulletin_config
+import datetime
 
 
 def connection():
