@@ -158,7 +158,7 @@ def item_edit(id):
     if item["owner"] == user_id or "edit_all" in get_permissions(user_id):
         return flask.render_template(
             'item_edit.html.j2',
-            current_page="edit",
+            current_page="item_edit",
             PAGES=PAGES,
             bulletin_config=bulletin_config,
             permissions=get_permissions(user_id),
@@ -204,6 +204,34 @@ def item_edit_execute(id):
             json.loads(flask.request.form["grades"]),
         )
         return json.dumps({"success": True}), 200
+    else:
+        return flask.render_template(
+            "error.html.j2",
+            error="403: You are not allowed to edit this item",
+            current_page="error",
+            PAGES=PAGES,
+            bulletin_config=bulletin_config,
+            permissions=get_permissions(user_id),
+            user_info=USERS_LIST[user_id],
+        ), 403
+
+
+@app.route("/occurrences/edit/<id>")
+def occurrences_edit(id):
+    user_id = flask.request.cookies.get('user_id')
+    item = database.fetch_item(id)
+    occurrences = database.fetch_occurrences(id)
+    if item["owner"] == user_id or "edit_all" in get_permissions(user_id):
+        return flask.render_template(
+            'occurrences_edit.html.j2',
+            current_page="occurrences_edit",
+            PAGES=PAGES,
+            bulletin_config=bulletin_config,
+            permissions=get_permissions(user_id),
+            user_info=USERS_LIST[user_id],
+            item=item,
+            utilities=utilities,
+        )
     else:
         return flask.render_template(
             "error.html.j2",
