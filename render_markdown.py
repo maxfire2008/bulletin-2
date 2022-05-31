@@ -11,7 +11,7 @@ def check_text(match: regex.Match, visibilities: list[str]):
     # print(repr(text))
     # text = search_result
     # if True:
-    if (visibility.startswith("!") and visibility not in visibilities) or visibility in visibilities:
+    if (visibility.startswith("!") and visibility[1:] not in visibilities) or visibility in visibilities:
         return filter_visibility(text, visibilities)
     return ""
 
