@@ -2,7 +2,7 @@ SCHOOL_NAME = "Sunny Valley High School"
 SCHOOL_NAME_SHORT = "SVHS"
 APP_NAME = "Bulletin Viewer"
 
-SUPPORTED_GRADES = [1,2,3,4,5,6]
+DEFAULT_VISIBILITIES = ["public", "student", "grade1", "grade2", "grade3", "grade4", "staff"]
 
 DATABASE_HOST="127.0.0.1"
 DATABASE_PORT=5432
