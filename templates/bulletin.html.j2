@@ -33,9 +33,9 @@
                         {# <small>3 days ago</small> #}
                     </div>
                     <p class="mb-1 word-wrap" id="{{ item['id'] }}Content">
-                        {{ render_markdown(item["content"], visibility="internal")|safe }}
+                        {{ render_markdown.render_markdown(item["content"], visibility="internal")|safe }}
                     </p>
-                    <small>{{ item["grades_string"]|safe }}</small>
+                    <!--<small>{{ item["grades_string"]|safe }}</small>-->
                 </div>
             {% endfor %}
         </div>

@@ -43,7 +43,7 @@ def fetch_item(item_id):
     conn = connection()
     cur = conn.cursor()
     cur.execute(
-        'SELECT "id", notes, last_edit, title, content, grades, "owner" ' +
+        'SELECT "id", notes, last_edit, title, content, "owner" ' +
         'FROM "bulletin-2".items ' +
         'WHERE "id" = %s',
         (item_id,)
@@ -57,8 +57,8 @@ def fetch_item(item_id):
         "last_edit": result[2],
         "title": result[3],
         "content": result[4],
-        "grades": result[5],
-        "owner": result[6],
+        # "grades": result[5],
+        "owner": result[5],
     }
 
 
@@ -86,7 +86,7 @@ def fetch_bulletins(limit: int = 500, offset: int = 0, earlier_than: datetime.da
 def fetch_items_for_day(date: datetime.date):
     conn = connection()
     cur = conn.cursor()
-    cur.execute('SELECT distinct on ("bulletin-2".items.id) "bulletin-2".items.id, "bulletin-2".items.title, "bulletin-2".items."content", "bulletin-2".items.grades ' +
+    cur.execute('SELECT distinct on ("bulletin-2".items.id) "bulletin-2".items.id, "bulletin-2".items.title, "bulletin-2".items."content" ' +
                 'FROM "bulletin-2".occurrences, "bulletin-2".items ' +
                 'WHERE "bulletin-2".occurrences."date" = %s::timestamp ' +
                 'AND "bulletin-2".occurrences."item" = "bulletin-2".items.id',
@@ -99,19 +99,19 @@ def fetch_items_for_day(date: datetime.date):
         "id": item[0],
         "title": item[1],
         "content": item[2],
-        "grades": item[3],
-        "grades_string": utilities.grades_string(item[3]),
+        # "grades": item[3],
+        # "grades_string": utilities.grades_string(item[3]),
     } for item in results]
 
 
-def update_item(item_id, title, content, notes, grades):
+def update_item(item_id, title, content, notes):
     conn = connection()
     cur = conn.cursor()
     cur.execute(
         'UPDATE "bulletin-2".items ' +
-        'SET title = %s, content = %s, notes = %s, grades = %s, "last_edit" = %s ' +
+        'SET title = %s, content = %s, notes = %s, "last_edit" = %s ' +
         'WHERE "id" = %s',
-        (title, content, notes, grades, int(time.time()), item_id)
+        (title, content, notes, int(time.time()), item_id)
     )
     conn.commit()
     cur.close()

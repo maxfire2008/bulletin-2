@@ -41,7 +41,7 @@ grades checkboxes 7,8,9,10
                               id="notes"></textarea>
                 </div>
                 <!--Grades-->
-                <div class="input-group mb-3">
+                <!--<div class="input-group mb-3">
                     <span class="input-group-text" id="gradesLabel">Grades <a title="This means anyone at THS can see this field in it's entirety">(PUBLIC)</a></span>
                     <div class="form-control">
                         {% for grade in bulletin_config.SUPPORTED_GRADES %}
@@ -54,7 +54,7 @@ grades checkboxes 7,8,9,10
                             </div>
                         {% endfor %}
                     </div>
-                </div>
+                </div>-->
                 <!--Save-->
                 <div class="input-group mb-3">
                     <button type="button" class="btn btn-primary" id="saveButton">Save</button>
@@ -69,7 +69,7 @@ grades checkboxes 7,8,9,10
                         </div>
                         <p class="mb-1 word-wrap" id="previewContent">
                         </p>
-                        <small id="previewGrades"></small>
+                        <!--<small id="previewGrades"></small>-->
                     </div>
                     <h4>Public preview</h4>
                     <div class="list-group-item bulletin-item">
@@ -78,7 +78,7 @@ grades checkboxes 7,8,9,10
                         </div>
                         <p class="mb-1 word-wrap" id="previewContentPublic">
                         </p>
-                        <small id="previewGradesPublic"></small>
+                        <!--<small id="previewGradesPublic"></small>-->
                     </div>
                 </div>
             </div>
@@ -95,19 +95,19 @@ grades checkboxes 7,8,9,10
         original_title = {{ item["title"]|tojson }};
         original_content = {{ item["content"]|tojson }};
         original_notes = {{ item["notes"]|tojson }};
-        original_grades = {{ item["grades"]|tojson }};
+        {# // original_grades = {{ item["grades"]|tojson }}; #}
 
         title.value = original_title;
         content.value = original_content;
         notes.value = original_notes;
 
-        {% for grade in bulletin_config.SUPPORTED_GRADES %}
+        {# {% for grade in bulletin_config.SUPPORTED_GRADES %}
             {% if grade in item["grades"] or -1 in item["grades"] %}
                 $('#grade{{ grade }}').prop('checked', true);
             {% endif %}
-        {% endfor %}
+        {% endfor %} #}
 
-        function selectedGrades() {
+        {# function selectedGrades() {
             var grades = [];
             {% for grade in bulletin_config.SUPPORTED_GRADES %}
                 if ($('#grade{{ grade }}').prop('checked')) {
@@ -115,7 +115,7 @@ grades checkboxes 7,8,9,10
                 }
             {% endfor %}
             return grades;
-        }
+        } #}
 
         // save button send the original as well as the new data
         $('#saveButton').click(function () {
@@ -132,7 +132,7 @@ grades checkboxes 7,8,9,10
                     "title": JSON.stringify(title.value),
                     "content": JSON.stringify(content.value),
                     "notes": JSON.stringify(notes.value),
-                    "grades": JSON.stringify(selectedGrades()),
+                    {# "grades": JSON.stringify(selectedGrades()), #}
                     "last_edit": {{ item["last_edit"]|tojson }}
                 },
                 success: function (data) {
@@ -204,7 +204,7 @@ grades checkboxes 7,8,9,10
 
         $("#title").on('input', previewTitle);
 
-        function previewGrades() {
+        {# function previewGrades() {
             var grades = selectedGrades();
             /*
             def grades_string(grades: list):
@@ -220,14 +220,14 @@ grades checkboxes 7,8,9,10
                 $('#previewGrades').html('<b>' + grades.join('</b>, <b>') + '</b>');
                 $('#previewGradesPublic').html('<b>' + grades.join('</b>, <b>') + '</b>');
             }
-        };
+        }; #}
 
-        {% for grade in bulletin_config.SUPPORTED_GRADES %}
+        {# {% for grade in bulletin_config.SUPPORTED_GRADES %}
             $('#grade{{ grade }}').on('change', previewGrades);
-        {% endfor %}
+        {% endfor %} #}
 
         previewTitle();
         previewContent();
-        previewGrades();
+        {# previewGrades(); #}
     </script>
 {% endblock %}
