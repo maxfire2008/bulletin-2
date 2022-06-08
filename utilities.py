@@ -1,5 +1,6 @@
 import datetime
 import base64
+import regex
 
 
 def base64_encode(string):
@@ -50,3 +51,5 @@ def get_age_from_time(time_from: datetime.datetime):
     days = time_diff.days
     return days
     
+def filter_for_grades(visibilities: list):
+    return filter(lambda a: regex.match("grade:[0-9]+",a), visibilities)

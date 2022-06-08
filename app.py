@@ -244,12 +244,23 @@ def occurrences_edit(id):
         ), 403
 
 
-@app.route("/api/preview/", methods=["POST"])
+@app.route("/api/preview/")
 def preview():
+    preview_visibilities = json.loads(
+        flask.request.get("preview_visibilities", "[]")
+    )
+    preview_content = json.loads(flask.request.get("preview_content", '""'))
+    previews = []
+    for preview in preview_visibilities[:100]:
+        previews.append(
+            render_markdown.render_markdown(
+                preview_content,
+                visibilities=preview,
+            )
+        )
     return json.dumps(
         {
-            "preview_internal": render_markdown.render_markdown(json.loads(flask.request.form["content"]), "internal"),
-            "preview_public": render_markdown.render_markdown(json.loads(flask.request.form["content"]), "public"),
+            "previews": previews,
             "wait_until_preview": 1000,
             "preview_rate": 5000,
         }

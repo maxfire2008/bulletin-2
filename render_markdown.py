@@ -4,6 +4,10 @@ import bleach
 
 
 def check_text(match: regex.Match, visibilities: list[str]):
+    if callable(visibilities):
+        get_visibility = visibilities
+    else:
+        get_visibility = lambda a: a in visibilities
     text = regex.search("(?<=(<!--[^\/]+?-->\n?)).*(?=(\n?<!--\/-->))",
                         match.group(), flags=regex.DOTALL).group().strip("\n")
     visibility = regex.findall("(?<=(<!--[^\/]+?-->)).*(?=(<!--\/-->))",
@@ -11,12 +15,12 @@ def check_text(match: regex.Match, visibilities: list[str]):
     # print(repr(text))
     # text = search_result
     # if True:
-    if (visibility.startswith("!") and visibility[1:] not in visibilities) or visibility in visibilities:
+    if (visibility.startswith("!") and not get_visibility(visibility[1:])) or get_visibility(visibility):
         return filter_visibility(text, visibilities)
     return ""
 
 
-def filter_visibility(text: str, visibilities=["public"]):
+def filter_visibility(text: str, visibilities: list[str]):
     return regex.sub(
         "\n?<!--[^\/]+?-->(?:(?!<!--[^\/]+?-->|<!--\/-->).|(?R))*<!--\/-->",
         lambda a: check_text(a, visibilities=visibilities),
@@ -25,8 +29,8 @@ def filter_visibility(text: str, visibilities=["public"]):
     )
 
 
-def render_markdown(text: str, visibility: str = "public"):
-    text = filter_visibility(text, visibility)
+def render_markdown(text: str, visibilities: list[str]):
+    text = filter_visibility(text, visibilities)
     rendered_markdown = markdown.markdown(
         text,
         extensions=['tables']

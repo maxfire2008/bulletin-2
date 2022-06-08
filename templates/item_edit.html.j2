@@ -74,21 +74,43 @@ grades checkboxes 7,8,9,10
             </div>
             <div class="col-md-6">
                 <div class="list-group">
-                    <h4>Internal preview</h4>
+                    <p>
+                        Preview as
+                        <!-- user_type select from student, staff, public -->
+                        <select id="userTypeSelect">
+                            <option value="user_type:student">
+                                Student
+                            </option>
+                            <option value="user_type:staff">
+                                Staff
+                            </option>
+                            <option value="user_type:public">
+                                Public
+                            </option>
+                        </select>
+                        <span id="gradeSelectSpan">
+                            <!-- grade select from 7,8,9,10 dropdown -->
+                            Grade
+                            <select id="gradeSelect">
+                                {% for grade in utilities.filter_for_grades(bulletin_config.DEFAULT_VISIBILITIES) %}
+                                    <option value="grade:{{ grade }}">
+                                        {{ grade[6:] }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </span>
+                    </p>
+                    <p>
+                        This is equivalent to the following visibilities:
+                        <ul id="visibilitiesForPreview"></ul>
+                        <input type="text" id="addVisibilityToPreviewField">
+                        <button id="addVisibilityToPreviewButton">+</button>
+                    </p>
                     <div class="list-group-item bulletin-item">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1 word-wrap" id="previewTitle"></h5>
                         </div>
                         <p class="mb-1 word-wrap" id="previewContent">
-                        </p>
-                        <!--<small id="previewGrades"></small>-->
-                    </div>
-                    <h4>Public preview</h4>
-                    <div class="list-group-item bulletin-item">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1 word-wrap" id="previewTitlePublic"></h5>
-                        </div>
-                        <p class="mb-1 word-wrap" id="previewContentPublic">
                         </p>
                         <!--<small id="previewGradesPublic"></small>-->
                     </div>
@@ -112,22 +134,6 @@ grades checkboxes 7,8,9,10
         title.value = original_title;
         content.value = original_content;
         notes.value = original_notes;
-
-        {# {% for grade in bulletin_config.SUPPORTED_GRADES %}
-            {% if grade in item["grades"] or -1 in item["grades"] %}
-                $('#grade{{ grade }}').prop('checked', true);
-            {% endif %}
-        {% endfor %} #}
-
-        {# function selectedGrades() {
-            var grades = [];
-            {% for grade in bulletin_config.SUPPORTED_GRADES %}
-                if ($('#grade{{ grade }}').prop('checked')) {
-                    grades.push({{ grade }});
-                }
-            {% endfor %}
-            return grades;
-        } #}
 
         // save button send the original as well as the new data
         $('#saveButton').click(function () {
@@ -174,25 +180,14 @@ grades checkboxes 7,8,9,10
 
         function previewContent() {
             // get preview from /api/preview/ and write to preview div
+            var visibilities = 
             $.ajax({
-                url: '/api/preview/',
-                type: 'POST',
-                data: {
-                    "content": JSON.stringify(content.value)
-                },
-                success: function (data) {
-                    console.log(data);
-                    parsed = JSON.parse(data);
-                    console.log(parsed);
-                    $('#previewContent').html(parsed["preview_internal"]);
-                    $('#previewContentPublic').html(parsed["preview_public"]);
-                    waitUntilPreview = parsed["wait_until_preview"];
-                    previewRate = parsed["preview_rate"];
-                },
-                error: function (data) {
-                    alert("Unknown error!");
-                    console.log(data);
-                }
+                url: '/api/preview/?content='+encodeURIComponent(content.value)+
+                "&visibilities="+
+                encodeURIComponent(JSON.stringify(
+                    ["user_type:student","user_type:public",""]
+                    )),
+                type: 'GET'
             });
         }
 
@@ -216,30 +211,7 @@ grades checkboxes 7,8,9,10
 
         $("#title").on('input', previewTitle);
 
-        {# function previewGrades() {
-            var grades = selectedGrades();
-            /*
-            def grades_string(grades: list):
-                if -1 in grades:
-                    return "<i>All Grades</i>"
-                else:
-                    return "<b>"+"</b>, <b>".join(map(str, grades))+"</b>"
-            */
-            if (grades.includes(-1)) {
-                $('#previewGrades').html('<i>All Grades</i>');
-                $('#previewGradesPublic').html('<i>All Grades</i>');
-            } else {
-                $('#previewGrades').html('<b>' + grades.join('</b>, <b>') + '</b>');
-                $('#previewGradesPublic').html('<b>' + grades.join('</b>, <b>') + '</b>');
-            }
-        }; #}
-
-        {# {% for grade in bulletin_config.SUPPORTED_GRADES %}
-            $('#grade{{ grade }}').on('change', previewGrades);
-        {% endfor %} #}
-
         previewTitle();
         previewContent();
-        {# previewGrades(); #}
 </script>
 {% endblock %}
