@@ -46,10 +46,7 @@ grades checkboxes 7,8,9,10
                     <div class="form-control">
                         {% for grade in bulletin_config.SUPPORTED_GRADES %}
                             <div class="form-check-inline">
-                                <input class="form-check-input"
-                                       type="checkbox"
-                                       value="{{ grade }}"
-                                       id="grade{{ grade }}">
+                                <input class="form-check-input" type="checkbox" value="{{ grade }}" id="grade{{ grade }}">
                                 <label class="form-check-label" for="grade{{ grade }}">{{ grade }}</label>
                             </div>
                         {% endfor %}
@@ -69,9 +66,10 @@ grades checkboxes 7,8,9,10
                             </div>
                         {% endfor %}
                     </div>
-                <!--Save-->
-                <div class="input-group mb-3">
-                    <button type="button" class="btn btn-primary" id="saveButton">Save</button>
+                    <!--Save-->
+                    <div class="input-group mb-3">
+                        <button type="button" class="btn btn-primary" id="saveButton">Save</button>
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">
@@ -243,5 +241,5 @@ grades checkboxes 7,8,9,10
         previewTitle();
         previewContent();
         {# previewGrades(); #}
-    </script>
+</script>
 {% endblock %}
