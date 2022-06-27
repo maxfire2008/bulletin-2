@@ -246,17 +246,15 @@ def occurrences_edit(id):
 
 @app.route("/api/preview/")
 def preview():
-    preview_visibilities = json.loads(
-        flask.request.args.get("preview_visibilities", "[]")
+    visibilities = json.loads(
+        flask.request.args.get("visibilities", "[]")
     )
-    preview_content = json.loads(flask.request.args.get("preview_content", '""'))
-    previews = []
-    for preview in preview_visibilities[:100]:
-        previews.append(
-            render_markdown.render_markdown(
-                preview_content,
-                visibilities=preview,
-            )
+    content = flask.request.args.get("content", '')
+    previews = {}
+    for preview in visibilities[:100]:
+        previews[preview] = render_markdown.render_markdown(
+            content,
+            visibilities=preview,
         )
     return json.dumps(
         {

@@ -102,7 +102,18 @@ grades checkboxes 7,8,9,10
                     </p>
                     <p>
                         This is equivalent to the following visibilities:
-                        <ul id="visibilitiesForPreview"></ul>
+                        <ul id="visibilitiesForPreview">
+                            <li>
+                                <code id="userTypeVisibility">
+                                    user_type:student
+                                </code>
+                            </li>
+                            <li>
+                                <code id="gradeVisibility">
+                                    grade:7
+                                </code>
+                            </li>
+                        </ul>
                         <input type="text" id="addVisibilityToPreviewField">
                         <button id="addVisibilityToPreviewButton">+</button>
                     </p>
@@ -185,9 +196,12 @@ grades checkboxes 7,8,9,10
                 url: '/api/preview/?content='+encodeURIComponent(content.value)+
                 "&visibilities="+
                 encodeURIComponent(JSON.stringify(
-                    ["user_type:student","user_type:public",""]
+                    []
                     )),
                 type: 'GET'
+            }).done(function (data) {
+                console.log(data);
+                $('#previewContent').html(data.content);
             });
         }
 
@@ -206,8 +220,38 @@ grades checkboxes 7,8,9,10
 
         function previewTitle() {
             $('#previewTitle').html(title.value);
-            $('#previewTitlePublic').html(title.value);
         }
+
+        function updateDefaultVisibilities() {
+            if ($('#userTypeSelect')[0].value === "user_type:student") {
+                gradeSelectSpan.style.display = "";
+            } else {
+                gradeSelectSpan.style.display = "none";
+                $("#gradeVisibility").parent().remove()
+            }
+        }
+
+        $("#userTypeSelect").on('change', function () {
+            if ($("#userTypeVisibility").length === 0) {
+                visibilitiesForPreview.append(
+                    '<li><code id="userTypeVisibility">'+$('#userTypeSelect')[0].value+'</code></li>'
+                );
+            } else {
+                $("#userTypeVisibility").html($('#userTypeSelect')[0].value);
+            }
+            updateDefaultVisibilities();
+        });
+
+        $("#gradeSelect").on('change', function () {
+            if ($("#gradeVisibility").length === 0) {
+                visibilitiesForPreview.append(
+                    '<li><code id="gradeVisibility">'+$("#gradeSelect")[0].value+'</code></li>'
+                );
+            } else {
+                $("#gradeVisibility").html($("#gradeSelect")[0].value);
+            }
+            updateDefaultVisibilities();
+        });
 
         $("#title").on('input', previewTitle);
 
