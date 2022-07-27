@@ -93,7 +93,7 @@ grades checkboxes 7,8,9,10
                             Grade
                             <select id="gradeSelect">
                                 {% for grade in utilities.filter_for_grades(bulletin_config.DEFAULT_VISIBILITIES) %}
-                                    <option value="grade:{{ grade }}">
+                                    <option value="{{ grade }}">
                                         {{ grade[6:] }}
                                     </option>
                                 {% endfor %}
@@ -114,8 +114,13 @@ grades checkboxes 7,8,9,10
                                 </code>
                             </li>
                         </ul>
-                        <input type="text" id="addVisibilityToPreviewField">
-                        <button id="addVisibilityToPreviewButton">+</button>
+                        Extra visibilities (one per line):
+                        <textarea class="form-control auto-resize"
+                              placeholder="Extra visibilities (one per line)"
+                              aria-label="Extra visibilities (one per line)"
+                              aria-describedby="contentLabel"
+                              style="resize: none"
+                              id="extraVisibilities"></textarea>
                     </p>
                     <div class="list-group-item bulletin-item">
                         <div class="d-flex w-100 justify-content-between">
@@ -161,7 +166,6 @@ grades checkboxes 7,8,9,10
                     "title": JSON.stringify(title.value),
                     "content": JSON.stringify(content.value),
                     "notes": JSON.stringify(notes.value),
-                    {# "grades": JSON.stringify(selectedGrades()), #}
                     "last_edit": {{ item["last_edit"]|tojson }}
                 },
                 success: function (data) {
@@ -177,7 +181,10 @@ grades checkboxes 7,8,9,10
                         $('body').css('background-color', '#54bef0');
                         // A newer version of this item is in the database. This page has been frozen as reference. You can choose the button at the bottom of the page to open a new tab to continue editing.
                         // add error message
-                        $('#saveButton').parent().after('<div class="alert alert-danger" role="alert">A newer version of this item is in the database. This page has been frozen as reference. You can choose the button at the bottom of the page to open a new tab to continue editing.</div>');
+                        $('#titleLabel').parent().before('<div class="alert alert-danger" role="alert">A newer version of this item is in the database. This page has been frozen as reference. You can choose the button at the bottom of the page to open a new tab to continue editing.</div>');
+                        $("textarea").prop("disabled", true);
+                        $("input").prop("disabled", true);
+                        $("select").prop("disabled", true);
                     } else {
                         alert("Unknown error!");
                         console.log(data);
@@ -191,17 +198,22 @@ grades checkboxes 7,8,9,10
 
         function previewContent() {
             // get preview from /api/preview/ and write to preview div
-            var visibilities = 
+            var visibilities = $("#extraVisibilities").val().split("\n").filter(function (x) { return x != '' });
+            if ($("#userTypeSelect").val() === "user_type:student") {
+                visibilities.push($("#gradeSelect").val());
+            }
+            visibilities.push($("#userTypeSelect").val());
             $.ajax({
                 url: '/api/preview/?content='+encodeURIComponent(content.value)+
                 "&visibilities="+
                 encodeURIComponent(JSON.stringify(
-                    []
+                    visibilities
                     )),
                 type: 'GET'
             }).done(function (data) {
-                console.log(data);
-                $('#previewContent').html(data.content);
+                data_json = JSON.parse(data);
+                console.log(data_json);
+                $('#previewContent').html(data_json["preview"]);
             });
         }
 
@@ -222,9 +234,10 @@ grades checkboxes 7,8,9,10
             $('#previewTitle').html(title.value);
         }
 
-        function updateDefaultVisibilities() {
+        function updateGradeVisibilitiesVisibility() {
             if ($('#userTypeSelect')[0].value === "user_type:student") {
                 gradeSelectSpan.style.display = "";
+                gradeVisibilityChange();
             } else {
                 gradeSelectSpan.style.display = "none";
                 $("#gradeVisibility").parent().remove()
@@ -239,19 +252,19 @@ grades checkboxes 7,8,9,10
             } else {
                 $("#userTypeVisibility").html($('#userTypeSelect')[0].value);
             }
-            updateDefaultVisibilities();
+            updateGradeVisibilitiesVisibility();
         });
 
-        $("#gradeSelect").on('change', function () {
+        function gradeVisibilityChange() {
             if ($("#gradeVisibility").length === 0) {
-                visibilitiesForPreview.append(
+                $("#visibilitiesForPreview").append(
                     '<li><code id="gradeVisibility">'+$("#gradeSelect")[0].value+'</code></li>'
                 );
             } else {
                 $("#gradeVisibility").html($("#gradeSelect")[0].value);
             }
-            updateDefaultVisibilities();
-        });
+        }
+        $("#gradeSelect").on('change', gradeVisibilityChange);
 
         $("#title").on('input', previewTitle);
 

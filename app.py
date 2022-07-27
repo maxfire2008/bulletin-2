@@ -250,15 +250,13 @@ def preview():
         flask.request.args.get("visibilities", "[]")
     )
     content = flask.request.args.get("content", '')
-    previews = {}
-    for preview in visibilities[:100]:
-        previews[preview] = render_markdown.render_markdown(
-            content,
-            visibilities=preview,
-        )
+
     return json.dumps(
         {
-            "previews": previews,
+            "preview": render_markdown.render_markdown(
+                content,
+                visibilities,
+            ),
             "wait_until_preview": 1000,
             "preview_rate": 5000,
         }
