@@ -2,20 +2,41 @@ import regex
 import markdown
 import bleach
 
+import evalidate
+
+
+def evaluate_visibility(visibility, visibilities):
+    if visibility.startswith("$"):
+        success, result = evalidate.safeeval(
+            src=visibility[1:],
+            context={
+                "visibilities": visibilities
+            },
+            addnodes=['Call'],
+            funcs=['int', 'min', 'max']
+        )
+        if success and type(result) == bool:
+            return result
+        return False
+    elif visibility.startswith("@"):
+        return visibility[1:] in visibilities
+    elif visibility.startswith("!"):
+        return visibility[1:] not in visibilities
+
 
 def check_text(match: regex.Match, visibilities: list[str]):
     if callable(visibilities):
-        get_visibility = visibilities
+        get_match = visibilities
     else:
-        get_visibility = lambda a: a in visibilities
+        def get_match(a): return evaluate_visibility(a, visibilities)
     text = regex.search("(?<=(<!--[^\/]+?-->\n?)).*(?=(\n?<!--\/-->))",
                         match.group(), flags=regex.DOTALL).group().strip("\n")
     visibility = regex.findall("(?<=(<!--[^\/]+?-->)).*(?=(<!--\/-->))",
-                  match.group(), flags=regex.DOTALL)[0][0][4:-3]
+                               match.group(), flags=regex.DOTALL)[0][0][4:-3]
     # print(repr(text))
     # text = search_result
     # if True:
-    if (visibility.startswith("!") and not get_visibility(visibility[1:])) or get_visibility(visibility):
+    if get_match(visibility):
         return filter_visibility(text, visibilities)
     return ""
 
@@ -73,4 +94,4 @@ if __name__ == "__main__":
 <!--public-->
 many *different* students
 <!--/-->"""
-    print(filter_visibility(x,visibilities=["internal"]))
+    print(filter_visibility(x, visibilities=["internal"]))
